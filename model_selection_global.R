@@ -21,8 +21,8 @@
 library(TMB)
 #compile("stateSpaceCountry.cpp")
 #dyn.load(dynlib("stateSpaceCountry"))
-compile("stateSpaceGlobalAutoCor3.cpp")
-dyn.load(dynlib("stateSpaceGlobalAutocor3"))
+compile("state_space_global_autocor.cpp")
+dyn.load(dynlib("state_space_global_autocor"))
 
 #################################################################
 # # load data (run dataPreGlobal.R)
