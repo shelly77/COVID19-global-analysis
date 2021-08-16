@@ -1,21 +1,19 @@
 
 #This file contains a function to simplify model selection procedure 
-#The difference between this file and "functions.R" is that here we use
-#marginal AIC(mAIC) instead of AIC as model selection measure
+#marginal AIC(mAIC) is used as model selection measure
 
 require("optimParallel")
 # Refit the model, possibly with some modifications to map argument using previous
 # estimates as starting values. 
 # 
 # Arguments:
-#   model: A list representing a previously fitted model with components
+#     model: A list representing a previously fitted model with components
 #     estimates:  Estimates from a previous model fit in same format as parameters
 #     parameters: Parameter values of restricted models
 #     map:        Specifies which parameters were estimated or restricted (input the MakeADFun)
 #     args.MakeADFun: Additional arguments to MakeADFun (excluding map and parameters)
 #     args.nlminb: Additional argument used to fit the model
 #     sdreport:   Standard errors etc...
-#
 #   changemap:  A list containing changes we want in the map-argument
 # 
 # Value: 
