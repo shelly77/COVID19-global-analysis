@@ -14,7 +14,7 @@ require("optimParallel")
 #     args.MakeADFun: Additional arguments to MakeADFun (excluding map and parameters)
 #     args.nlminb: Additional argument used to fit the model
 #     sdreport:   Standard errors etc...
-#   changemap:  A list containing changes we want in the map-argument
+#   changemap:  A list containing changes we want in the map-argumentn
 # 
 # Value: 
 #    A list with the same format as the model argument containing the new model
