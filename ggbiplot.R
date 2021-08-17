@@ -1,4 +1,6 @@
-# 
+# This Rscript is open source online.
+
+
 #  ggbiplot.r
 #  
 #  Copyright 2011 Vincent Q. Vu.
