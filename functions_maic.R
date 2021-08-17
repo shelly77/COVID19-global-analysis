@@ -1,5 +1,5 @@
 
-#This file contains a function to simplify model selection procedure 
+#This file contains customed functions to simplify model selection procedure 
 #marginal AIC(mAIC) is used as model selection measure
 
 require("optimParallel")
