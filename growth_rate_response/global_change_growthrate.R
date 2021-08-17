@@ -7,10 +7,10 @@
 # is taken as the response variable.
 
 #load the data file
-globalraw  <- read.csv("rawData/combined_dataset_latest.csv", header=T)
+globalraw  <- read.csv("raw_data/combined_dataset_latest.csv", header=T)
 
 ###############################################
-#After a preliminary analysis in datapreGlobal.R,
+#After a preliminary analysis in data_pre_global.R,
 #we decide to select a subset of variables from the raw dataset.
 dateFrom <- as.integer(gsub("-", "","2020-03-01"))
 dateTo <-as.integer(gsub("-", "","2020-12-31"))
@@ -57,7 +57,7 @@ for(i in 1:n){
   grorate_change <- c(grorate_change,c(NA,change_one_count))
   }
 
-# add calculated growth rate change to the dataset
+#add calculated growth rate change to the dataset
 globalsub <- globalsub  %>%
              mutate(grorate_change = grorate_change )
 
@@ -222,11 +222,11 @@ tmb_data_growrate =
     gdp = stats_gdp_per_capita,
     
     newtests = tests_new_smoothed,
-    # 
+    
     strindex = stringency_index,
     strindex_lag1 = stringency_index_lag1,
     strindex_lag2 = stringency_index_lag2,
-    # 
+    
     mobility = mobility_retail_recreation,
     mobility_lag1 = mobility_retail_recreation_lag1,
     mobility_lag2 = mobility_retail_recreation_lag2,

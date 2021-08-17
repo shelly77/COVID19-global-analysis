@@ -3,27 +3,21 @@
 # of environmental, demographic and socioeconomic     #
 # factors to global variation of COVID-19 transmission#                                  
 #          Compiled by Yihan Cao                      #
-#          University of Oslo, Jan, 2021              #
+#          University of Oslo, Aug, 2021              #
 #######################################################
 
-#This R script is used for model selection.
+#This R script is used for model selection when the growth
+#rate of confirmed cases is taken as the response variable.
 
 ################################################################
 # complie and load the template
-#library(TMB)
-#compile("NegBinoModelCountry.cpp")
-#dyn.load(dynlib("NegBinoModelCountry"))
 
 library(TMB)
-#compile("stateSpaceCountry.cpp")
-#dyn.load(dynlib("stateSpaceCountry"))
 compile("global_change_growthrate.cpp")
 dyn.load(dynlib("global_change_growthrate"))
 
 #################################################################
-# # load data (run dataPreGlobal.R)
-
-#save(data,file="data.RData")
+#load data (run global_change_growthrate.R first)
 
 # Initialize parameters
 parameters <- list(
@@ -40,22 +34,21 @@ parameters <- list(
   beta_humidity = 0,
   beta_humidity_lag1 = 0,
   beta_humidity_lag2 = 0,
-  # 
+  
   beta_uv = 0,
   beta_uv_lag1 = 0,
   beta_uv_lag2 = 0,
   
-  # 
+
   beta_population = 0,
   beta_dens = 0,
   beta_mage = 0,
-  # 
+  
   beta_gdp = 0,
   beta_newtests = 0,
-  # 
+  
   beta_days = 0,
-  beta_days_sq = 0,
-  # 
+  beta_days_sq = 0, 
   
   beta_mobility = 0,
   beta_mobility_lag1 = 0,
@@ -114,19 +107,18 @@ map0 = list(
   beta_humidity = factor(NA),
   beta_humidity_lag1 = factor(NA),
   beta_humidity_lag2 = factor(NA),
-  # 
+  
   beta_uv = factor(NA),
   beta_uv_lag1 = factor(NA),
   beta_uv_lag2 = factor(NA),
   
-  # 
   beta_population = factor(NA),
   beta_dens = factor(NA),
   beta_mage = factor(NA),
-  # 
+  
   beta_gdp = factor(NA),
   beta_newtests = factor(NA),
-  # 
+  
   beta_days = factor(NA),
   beta_days_sq = factor(NA),
   
@@ -145,7 +137,7 @@ map0 = list(
   beta_contatracing = factor(NA),
   beta_contatracing_lag1 = factor(NA),
   beta_contatracing_lag2 = factor(NA),
-  # 
+  
   logalpha1 = factor(NA),
   logalpha2 = factor(NA),
   
@@ -176,7 +168,7 @@ map0 = list(
 
 
 #################################################################
-
+#define a null model
 model0 <- list(
   parameters = parameters,   
   map=map0,
@@ -216,7 +208,7 @@ modeltest <- update(model0,optimizer="optim",list(beta0 = NULL,
                   cv=0.1,seed=123)
 modeltest
 modeltest$sdreport
-#aic=  2237.98 
+#aic= 2237.98 
 #p = 16
 
 rep_value <- summary(modeltest$sdreport,"report")
