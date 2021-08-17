@@ -1,36 +1,29 @@
 #######################################################
 # Supporting R script for: The relative contribution  #
 # of environmental, demographic and socioeconomic     #
-# factors to global variation of COVID-19 transmission#                                  
+# factors to variation global of COVID-19 transmission#                                  
 #          Compiled by Yihan Cao                      #
-#          University of Oslo, Jan, 2021              #
+#          University of Oslo, Aug, 2021              #
 #######################################################
 
-#This R script is used for model selection.
+#This R script contains model selection procedure.
 
-#The only difference between this file and "modelSelecton/global2.cpp"
-#is that this file contains the number of cases in previous week as a 
-#covariate in the model
 
 ################################################################
 # complie and load the template
-#library(TMB)
-#compile("NegBinoModelCountry.cpp")
-#dyn.load(dynlib("NegBinoModelCountry"))
-
 library(TMB)
-#compile("stateSpaceCountry.cpp")
-#dyn.load(dynlib("stateSpaceCountry"))
 compile("state_space_global_autocor.cpp")
 dyn.load(dynlib("state_space_global_autocor"))
 
 #################################################################
-# # load data (run dataPreGlobal.R)
+# load data (run data_pre_global.R first)
 
-#save(data,file="data.RData")
+# save(data,file="data.RData")
 
 # Initialize parameters
 parameters <- list(
+
+# fixed effect parameters
   beta0 = 1,
   beta_temp = 0,
   beta_temp_sq = 0,
@@ -44,23 +37,22 @@ parameters <- list(
   beta_humidity = 0,
   beta_humidity_lag1 = 0,
   beta_humidity_lag2 = 0,
-  # 
+  
   beta_uv = 0,
   beta_uv_lag1 = 0,
   beta_uv_lag2 = 0,
   
   beta_pweekcases = 0,
-  # 
+  
   beta_population = 0,
   beta_dens = 0,
   beta_mage = 0,
-  # 
+  
   beta_gdp = 0,
   beta_newtests = 0,
-  # 
+  
   beta_days = 0,
   beta_days_sq = 0,
-  # 
   
   beta_mobility = 0,
   beta_mobility_lag1 = 0,
@@ -78,11 +70,12 @@ parameters <- list(
   beta_contatracing_lag1 = 0,
   beta_contatracing_lag2 = 0,
   
+  # residuals related parameters
   logalpha0 = 0.2,
   logalpha1 = 0.2,
   logalpha2 = 0.2,
   
-  #rhoRan = rep(-0.5,3),
+ # random effects related parameters
   logsd_spatioLevel = 0.2,
   mu_spatioLevel = rep(0,nlevels(data$spatioLevel)),
   logsd_randm_slop_days = 0.2,
@@ -103,6 +96,7 @@ parameters <- list(
 
 
 # turn off most of parameters in map
+# so that we start with simple models
 #######################################################
 library("numDeriv")
 source("functions_maic.R")
@@ -120,14 +114,13 @@ map0 = list(
   beta_humidity = factor(NA),
   beta_humidity_lag1 = factor(NA),
   beta_humidity_lag2 = factor(NA),
-  # 
+  
   beta_uv = factor(NA),
   beta_uv_lag1 = factor(NA),
   beta_uv_lag2 = factor(NA),
   
   beta_pweekcases = factor(NA),
   
-  # 
   beta_population = factor(NA),
   beta_dens = factor(NA),
   beta_mage = factor(NA),
@@ -153,11 +146,9 @@ map0 = list(
   beta_contatracing = factor(NA),
   beta_contatracing_lag1 = factor(NA),
   beta_contatracing_lag2 = factor(NA),
-  # 
+  
   logalpha1 = factor(NA),
   logalpha2 = factor(NA),
-  
-  # rhoRan = factor(rep(NA,3)),
   
   logsd_spatioLevel = factor(NA),
   mu_spatioLevel = factor(rep(NA,nlevels(tmb_scale_pweek$spatioLevel))),
@@ -216,15 +207,6 @@ model1a
 model1a$sdreport
 #maic= 3830.073 
 #p = 3
-
-
-#####model1b <- update(model1a,optimizer="nlminb",list(logalpha2 = NULL),
-  #                cv=0.01,seed=123)
-#####model1b
-#######model1b$sdreport
-#aic= 3833.986 
-#p = 4
-
 
 model2 <- update(model1a,optimizer="nlminb",list(beta_temp = NULL,
                                                  beta_windsp = NULL,
@@ -438,9 +420,9 @@ model16$sdreport
 #maic=   1215.427 
 #p = 18
 
-#######Include random effects
-model17 <- update(model16,optimizer="nlminb",list(  mu_spatioLevel = NULL,
-                                                    logsd_spatioLevel = NULL),
+# include random effects
+model17 <- update(model16,optimizer="nlminb",list(mu_spatioLevel = NULL,
+                                                  logsd_spatioLevel = NULL),
                   
                   cv=0.1,seed=123)
 model17
@@ -509,13 +491,13 @@ model20b$sdreport
 
 
 ###############################################
-####So far, model20 is the best
-##play around it,check the neighbour models
+#So far, model20 is the best
+#play around it,check the neighbour models
 
-model21 <- update(model20,optimizer="nlminb",list(beta_temp  =  factor(NA),
-                                                  beta_windsp   =  factor(NA),
-                                                  beta_humidity   =  factor(NA),
-                                                  beta_uv   =  factor(NA),
+model21 <- update(model20,optimizer="nlminb",list(beta_temp = factor(NA),
+                                                  beta_windsp = factor(NA),
+                                                  beta_humidity = factor(NA),
+                                                  beta_uv = factor(NA),
                                                   beta_temp_lag1 = NULL,
                                                   beta_windsp_lag1 = NULL,
                                                   beta_humidity_lag1 = NULL,
@@ -523,13 +505,13 @@ model21 <- update(model20,optimizer="nlminb",list(beta_temp  =  factor(NA),
                   cv=0.01,seed=123)
 model21
 model21$sdreport
-##maic= 236.2979 
+#maic= 236.2979 
 #p = 22
 
-model22 <- update(model20,optimizer="nlminb",list(beta_temp  =  factor(NA),
-                                                   beta_windsp   =  factor(NA),
-                                                   beta_humidity   =  factor(NA),
-                                                   beta_uv   =  factor(NA),
+model22 <- update(model20,optimizer="nlminb",list(beta_temp = factor(NA),
+                                                   beta_windsp = factor(NA),
+                                                   beta_humidity = factor(NA),
+                                                   beta_uv = factor(NA),
                                                    beta_temp_lag2 = NULL,
                                                    beta_windsp_lag2 = NULL,
                                                    beta_humidity_lag2 = NULL,
@@ -538,7 +520,7 @@ model22 <- update(model20,optimizer="nlminb",list(beta_temp  =  factor(NA),
                    cv=0.1,seed=123)
 model22
 model22$sdreport
-##maic=  235.0132 
+#maic=  235.0132 
 #p = 21
 
 model23 <- update(model20,optimizer="nlminb",list(beta_temp_sq = factor(NA)),
@@ -546,11 +528,12 @@ model23 <- update(model20,optimizer="nlminb",list(beta_temp_sq = factor(NA)),
                    cv=0.1,seed=123)
 model23
 model23$sdreport
-#m#aic=   228.462 
+#maic=   228.462 
 #p = 21
 
 
 model24 <- update(model23,optimizer="nlminb",list(beta_gdp =  factor(NA)),
+
                   cv=0.01,seed=123)
 model24
 model24$sdreport
@@ -558,6 +541,7 @@ model24$sdreport
 #p = 20
 
 model25 <- update(model24,optimizer="nlminb",list(beta_dens =  factor(NA)),
+
                   cv=0.01,seed=123)
 model25
 model25$sdreport
@@ -565,6 +549,7 @@ model25$sdreport
 #p = 19
 
 model26 <- update(model25,optimizer="nlminb",list(beta_debtrelief_lag2 =  factor(NA)),
+
                   cv=0.01,seed=123)
 model26
 model26$sdreport
@@ -573,6 +558,7 @@ model26$sdreport
 
 
 model27 <- update(model26,optimizer="nlminb",list(beta_healthinvestment  =  factor(NA)),
+
                   cv=0.01,seed=123)
 model27
 model27$sdreport
@@ -581,6 +567,7 @@ model27$sdreport
 
 
 model28 <- update(model27,optimizer="nlminb",list(beta_days_sq =  factor(NA)),
+
                   cv=0.01,seed=123)
 model28
 model28$sdreport
@@ -588,6 +575,7 @@ model28$sdreport
 #p = 16
 
 model29 <- update(model28,optimizer="nlminb",list(beta_windsp = factor(NA)),
+
                   cv=0.01,seed=123)
 model29
 model29$sdreport
@@ -595,6 +583,7 @@ model29$sdreport
 #p = 15
 
 model30 <- update(model29,optimizer="nlminb",list(beta_humidity = factor(NA)),
+
                   cv=0.01,seed=123)
 model30
 model30$sdreport
@@ -602,6 +591,7 @@ model30$sdreport
 #p = 14
 
 model31 <- update(model30,optimizer="nlminb",list(beta_mage = factor(NA)),
+
                   cv=0.01,seed=123)
 model31
 model31$sdreport
@@ -609,10 +599,11 @@ model31$sdreport
 #p = 13
 
 model32 <- update(model30,optimizer="nlminb",list(beta_temp = factor(NA)),
+
                   cv=0.01,seed=123)
 model32
 model32$sdreport
-#maic=  218.2942 
+#maic= 218.2942 
 #p = 13
 
 model33 <- update(model30,optimizer="nlminb",list(  beta_mobility_lag1 = NULL,
@@ -624,7 +615,7 @@ model33 <- update(model30,optimizer="nlminb",list(  beta_mobility_lag1 = NULL,
                   cv=0.2,seed=123)
 model33
 model33$sdreport
-#maic=  242.5004 
+#maic= 242.5004 
 #p = 14
 
 model34 <- update(model30,optimizer="nlminb",list(  beta_contatracing = NULL),
@@ -632,7 +623,7 @@ model34 <- update(model30,optimizer="nlminb",list(  beta_contatracing = NULL),
                   cv=0.2,seed=123)
 model34
 model34$sdreport
-#maic=  211.0469 
+#maic= 211.0469 
 #p = 15
 
 
@@ -641,14 +632,12 @@ model35 <- update(model34,optimizer="nlminb",list(beta_debtrelief = NULL),
                   cv=0.2,seed=123)
 model35
 model35$sdreport
-#maic=  208.6521
+#maic= 208.6521
 #p = 16
 
 
 #####################################################################
-
 #play around model35 to confirm that it is the best model
-#216.7766 
 
 modelN1 <- update(model35,optimizer="nlminb",list( beta_temp= factor(NA),
                                                    beta_uv = factor(NA),
@@ -660,7 +649,6 @@ modelN1
 modelN1$sdreport
 ##aic=  215.0133 
 #p = 16
-208.6521 - 215.0133 
 
 modelN2 <- update(model35,optimizer="nlminb",list( beta_temp = factor(NA),
                                                    beta_uv = factor(NA),
@@ -670,9 +658,8 @@ modelN2 <- update(model35,optimizer="nlminb",list( beta_temp = factor(NA),
                   cv=0.01,seed=123)
 modelN2
 modelN2$sdreport
-#maic=214.7715 
+#maic= 214.7715 
 #p = 16
-208.6521 -214.7715 
 
 modelN3 <- update(model35,optimizer="nlminb",list(beta_humidity = NULL),
                   
@@ -681,7 +668,6 @@ modelN3
 modelN3$sdreport
 #maic=  210.6138 
 #p = 17
-208.6521 - 210.6138 
 
 modelN4 <- update(model35,optimizer="nlminb",list(beta_windsp = NULL),
                   
@@ -690,7 +676,6 @@ modelN4
 modelN4$sdreport
 #maic=  210.5996
 #p = 17
-208.6521 -210.5996
 
 modelN5 <- update(model35,optimizer="nlminb",list(beta_population  = factor(NA)),
                   
@@ -699,7 +684,6 @@ modelN5
 modelN5$sdreport
 #maic= 212.8352 
 #p = 15
-208.6521 -212.8352 
 
 modelN6 <- update(model35,optimizer="nlminb",list(beta_mage = factor(NA)),
                   
@@ -708,7 +692,6 @@ modelN6
 modelN6$sdreport
 #maic=  209.365 
 #p = 15
-208.6521 -209.365
 
 modelN7 <- update(model35,optimizer="nlminb",list(beta_gdp = NULL),
                   
@@ -717,7 +700,6 @@ modelN7
 modelN7$sdreport
 #maic= 208.8787
 #p = 17
-208.6521 -208.8787
 
 modelN8 <- update(model35,optimizer="nlminb",list(beta_newtests = factor(NA)),
                   
@@ -726,7 +708,6 @@ modelN8
 modelN8$sdreport
 #maic= 211.5586 
 #p = 15
-208.6521 -211.5586 
 
 modelN9 <- update(model35,optimizer="nlminb",list( beta_contatracing = factor(NA)),
                   
@@ -735,8 +716,6 @@ modelN9
 modelN9$sdreport
 #maic= 214.0228 
 #p = 15
-208.6521 -214.0228 
-
 
 modelN10 <- update(model35,optimizer="nlminb",list( beta_contatracing_lag1 = NULL,
                                                    beta_contatracing = factor(NA)),
@@ -745,8 +724,6 @@ modelN10
 modelN10$sdreport
 #maic=  212.6076 
 #p = 16
-208.6521 - 212.6076 
-
 
 modelN11 <- update(model35,optimizer="nlminb",list( beta_contatracing_lag2 = NULL,
                                                     beta_contatracing = factor(NA)),
@@ -756,8 +733,6 @@ modelN11
 modelN11$sdreport
 #maic= 213.3388 
 #p = 16
-#deltaaic = 3.046
-208.6521 -213.3388 
 
 modelN12 <- update(model35,optimizer="nlminb",list( beta_debtrelief = factor(NA)),
                   
@@ -766,7 +741,6 @@ modelN12
 modelN12$sdreport
 #maic= 211.0469 
 #p = 15
-208.6521 -211.0469 
 
 modelN13 <- update(model35,optimizer="nlminb",list(beta_debtrelief_lag1 = NULL,
                                                    beta_debtrelief = factor(NA)),
@@ -777,9 +751,6 @@ modelN13
 modelN13$sdreport
 #maic=   212.8971 
 #p = 16
-#deltaaic = 1.11
-208.6521 -212.8971 
-
 
 modelN14 <- update(model35,optimizer="nlminb",list(beta_debtrelief_lag2 = NULL,
                                                    beta_debtrelief = factor(NA)),
@@ -790,9 +761,6 @@ modelN14
 modelN14$sdreport
 #maic=   212.8444 
 #p = 16
-#deltaaic = 1.11
-208.6521 - 212.8444 
-
 
 modelN15 <- update(model35,optimizer="nlminb",list(beta_healthinvestment = NULL),
                    
@@ -801,9 +769,6 @@ modelN15
 modelN15$sdreport
 #maic=   210.3786 
 #p = 16
-#deltaaic = 0.025
-208.6521 - 210.3786 
-
 
 modelN16 <- update(model35,optimizer="nlminb",list(beta_healthinvestment_lag1 = NULL),
                    
@@ -812,7 +777,6 @@ modelN16
 modelN16$sdreport
 #aic=   209.4288 
 #p = 17
-208.6521 - 209.4288 
 
 modelN17 <- update(model35,optimizer="nlminb",list(beta_healthinvestment_lag2 = NULL),
                    
@@ -821,7 +785,6 @@ modelN17
 modelN17$sdreport
 #aic= 210.6049 
 #p = 17
-208.6521 -210.6049 
 
 modelN18 <- update(model35,optimizer="nlminb",list(beta_dens = NULL),
                    
@@ -830,16 +793,12 @@ modelN18
 modelN18$sdreport
 #aic= 210.2764 
 #p = 17
-208.6521 -210.2764 
-
-
 
 #################################################
 modelbest <- model35
 #aic= 208.6521 
 #p = 16
 model35$sdreport
-
 
 #one step to the best model
 modelonestep <- update(model0,optimizer="nlminb",list(beta0 = NULL,                   
