@@ -63,7 +63,7 @@ flattenCorrMatrix(res$r, res$P)
 #ignore also international_support which I think does not affect domestic transmission
 mymatrix <- as.matrix(na.omit(globalraw[,13:19]),ncol=7)
 normalizedData <- mynormalize(mymatrix)
-res <-rcorr(normalizedData,type="pearson")
+res <- rcorr(normalizedData,type="pearson")
 flattenCorrMatrix(res$r, res$P)
 #after excluding statistically significant correlated variables,
 #we decide to retain these variables:
@@ -77,7 +77,7 @@ flattenCorrMatrix(res$r, res$P)
 demodf <- with(globalraw,cbind(stats_population,stats_population_density,stats_median_age,stats_population_urban,stats_population_school_age))
 demomat <- as.matrix(na.omit(demodf),ncol=5)
 normalizedData <- mynormalize(demomat)
-res <-rcorr(normalizedData,type="spearman")
+res <- rcorr(normalizedData,type="spearman")
 flattenCorrMatrix(res$r, res$P)
 #all of these variables are significantly correlated
 #we decide to retain these variables in the model and 
@@ -90,7 +90,7 @@ flattenCorrMatrix(res$r, res$P)
 #After a preliminary analysis above,
 #we decide to select a subset of variables from the raw dataset.
 dateFrom <- as.integer(gsub("-", "","2020-03-01"))
-dateTo <-as.integer(gsub("-", "","2020-12-31"))
+dateTo <- as.integer(gsub("-", "","2020-12-31"))
 library("dplyr")
 library("aweek")
 library("zoo")
@@ -99,9 +99,9 @@ globalsub <- globalraw %>%
                 mutate(cases_new_smoothed = zoo::rollmean(cases_new, k = 7, fill = NA))%>%
                 filter(dateFrom <= date & date <= dateTo) %>%
                 mutate(weekno = date2week(DATE, numeric = TRUE))  %>%
-                 select(country_name,DATE,weekno,
-                      cases_new_smoothed, 
-                      cases_days_since_first,
+                select(country_name,DATE,weekno,
+                       cases_new_smoothed, 
+                       cases_days_since_first,
   
                        stats_population, 
                        stats_population_density,
@@ -209,8 +209,8 @@ weekDfnew <-  cbind(globalweek_nolag,globalweek_lag1,globalweek_lag2) %>%
                      arrange(country,weekno) %>%
                      select(-c("country_lag1","country_lag2","weekno_lag1","weekno_lag2"))
 
-## We exclude countries with too few data points (<5)
-## and countries with poor data qualities by visual inspection
+# We exclude countries with too few data points (<5)
+# and countries with poor data qualities by visual inspection
 # for Japan we exclude data before march due to the outbreak 
 # in cruise Diamand
 countryIndx <- as.data.frame(table(weekDfnew$country)>=5)
@@ -219,6 +219,7 @@ weekDfnew <- weekDfnew %>%
              filter(!(country %in% c("Fiji","Oman"))) %>%
              filter(!(country =="Japan" & as.numeric(weekno) <= 12))
 
+# rename some of the countries
 levels(weekDfnew$country)[21] = "Bolivia"
 levels(weekDfnew$country)[46] = "Ivory Coast"
 levels(weekDfnew$country)[91] = "Korea"
@@ -289,11 +290,11 @@ tmb_newdata =
   
     newtests = tests_new_smoothed,
     newtestssq = tests_new_smoothed^2,
-    # 
+    
     strindex = stringency_index,
     strindex_lag1 = stringency_index_lag1,
     strindex_lag2 = stringency_index_lag2,
-    # 
+    
     mobility = mobility_retail_recreation,
     mobility_lag1 = mobility_retail_recreation_lag1,
     mobility_lag2 = mobility_retail_recreation_lag2,
@@ -333,8 +334,7 @@ attach(globscale)
 tmb_scaledata =
   list(
     lognewcasessmooth = logcases_new_smoothed,
-    #newcasessmooth = cases_new_smoothed,
-    
+  
     temp =  weather_temperature_mean,
     temp_sq =  weather_temperature_mean^2,
     temp_lag1 =  weather_temperature_mean_lag1,
@@ -360,11 +360,11 @@ tmb_scaledata =
     
     newtests = tests_new_smoothed,
     newtestssq = tests_new_smoothed^2,
-    # 
+    
     strindex = stringency_index,
     strindex_lag1 = stringency_index_lag1,
     strindex_lag2 = stringency_index_lag2,
-    # 
+    
     mobility = mobility_retail_recreation,
     mobility_lag1 = mobility_retail_recreation_lag1,
     mobility_lag2 = mobility_retail_recreation_lag2,
@@ -409,8 +409,6 @@ tmb_scale_pweek =
     lognewcasessmooth = logcases_new_smoothed,
     pweekcases = pweekcases,
     
-   # cases_new_smoothed = cases_new_smoothed,
-    
     temp =  weather_temperature_mean,
     temp_sq =  weather_temperature_mean^2,
     temp_lag1 =  weather_temperature_mean_lag1,
@@ -436,11 +434,11 @@ tmb_scale_pweek =
     
     newtests = tests_new_smoothed,
     newtestssq = tests_new_smoothed^2,
-    # 
+     
     strindex = stringency_index,
     strindex_lag1 = stringency_index_lag1,
     strindex_lag2 = stringency_index_lag2,
-    # 
+    
     mobility = mobility_retail_recreation,
     mobility_lag1 = mobility_retail_recreation_lag1,
     mobility_lag2 = mobility_retail_recreation_lag2,
@@ -480,10 +478,7 @@ mbest_glmm_pweek <- glmmTMB(cases_new_smoothed ~  temp +  uv + population  + mag
                         family=nbinom2, data=df_tmb_pweek)
 check_overdispersion(mbest_glmm_pweek)
 summary(mbest_glmm_pweek)
-#check the residuals
 
-
-hist(df_tmb_pweek$cases_new_smoothed)
 
 mbest_lmer_pweek <- lmer(lognewcasessmooth ~  temp +  uv + population  + mage + pweekcases +
                      newtests + mobility + debtrelief  + contatracing + cases_days_since_first +
@@ -493,5 +488,5 @@ mbest_lmer_pweek <- lmer(lognewcasessmooth ~  temp +  uv + population  + mage + 
                      data=df_tmb_pweek)
 
 summary(mbest_lmer_pweek)
-AIC(mbest_lmer_pweek) 263.402
+AIC(mbest_lmer_pweek) 
          
