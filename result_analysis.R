@@ -675,7 +675,7 @@ for (i in 1:length(unique(tmb_scale_pweek$spatioLevelfactor))){
 
   #creat column "continent"for each study country
   library("dplyr")
-  continents  <- read.csv("countries&continents.csv", header=T,sep = ";") 
+  continents  <- read.csv("raw_data/countries&continents.csv", header=T,sep = ";") 
   head(continents)
   
   countries <- as.data.frame(rownames(random_slop_mobility)) %>%
@@ -684,9 +684,10 @@ for (i in 1:length(unique(tmb_scale_pweek$spatioLevelfactor))){
   count_contin <- merge(countries,continents, by = c("Country.or.Area"), all.x = T) %>%
                   select(Country.or.Area,Continent)
   
-  write.csv(count_contin,"count_contin.csv", row.names = FALSE)
+  write.csv(count_contin,"raw_data/count_contin.csv", row.names = FALSE)
   
-  count_contin_full  <- read.csv("country_continent_full.csv", header=T)   %>%
+  #manually add missing info to count_contin.csv and create a new data file country_continent_full.csv
+  count_contin_full  <- read.csv("raw_data/country_continent_full.csv", header=T)   %>%
                        dplyr::rename("Country"= "Country.or.Area")
 
 #perform pca analysis
