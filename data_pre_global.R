@@ -467,26 +467,18 @@ df_tmb_pweek <- data.frame(matrix(unlist(tmb_scale_pweek), nrow=length(tmb_scale
                             byrow=FALSE,dimnames = list(NULL,names(tmb_scale_pweek))),stringsAsFactors=FALSE)  %>%
                  mutate(spatioLevelfactor = as.factor(spatioLevelfactor)) 
 
-#now we run the selected model with glmmTMB, by adding the previous week's cases, the model fit improves a lot
+
+#now we add the previous week's cases, the model fit improves a lot
 #So in the manual model seleciton procedure, we decide to include it as an covariate.
+#The summary reports the exactly same result as that in the model selection procedure.
 library("glmmTMB")
-mbest_glmm_pweek <- glmmTMB(cases_new_smoothed ~  temp +  uv + population  + mage + pweekcases +
+mbest_glmm_pweek <- glmmTMB(lognewcasessmooth ~  temp +  uv + population  + mage + pweekcases +
                         newtests + mobility + debtrelief  + contatracing + cases_days_since_first +
                         (1 | spatioLevelfactor) + (0 + mobility| spatioLevelfactor) +
                         (0 + cases_days_since_first | spatioLevelfactor) + 
                         (0 + cases_days_since_first_sq | spatioLevelfactor),
-                        family=nbinom2, data=df_tmb_pweek)
-check_overdispersion(mbest_glmm_pweek)
+                        family=gaussian, data=df_tmb_pweek)
 summary(mbest_glmm_pweek)
 
 
-mbest_lmer_pweek <- lmer(lognewcasessmooth ~  temp +  uv + population  + mage + pweekcases +
-                     newtests + mobility + debtrelief  + contatracing + cases_days_since_first +
-                     (1 | spatioLevelfactor) + (0 + mobility| spatioLevelfactor) +
-                     (0 + cases_days_since_first | spatioLevelfactor) + 
-                     (0 + cases_days_since_first_sq | spatioLevelfactor),
-                     data=df_tmb_pweek)
 
-summary(mbest_lmer_pweek)
-AIC(mbest_lmer_pweek) 
-         
