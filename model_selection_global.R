@@ -101,6 +101,7 @@ parameters <- list(
 library("numDeriv")
 source("functions_maic.R")
 
+
 map0 = list(
   beta_temp = factor(NA),
   beta_temp_sq = factor(NA),
