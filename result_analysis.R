@@ -330,12 +330,12 @@ R_squared(mod_days_random$opt$objective,obj_full)
 
 
 ####################################################
-################## Figure 3 left pie char ##########
+################## Figure 3 (left) ########################
 ####################################################
 #plot the pie chart for all the effects
 
 library(plotrix)
-par(mar=c(0.1,1.2,2.2,0.1), oma=c(-2, -2, 1, 1),mgp=c(3,0.4,0))
+par(mar=c(0.1,1.2,2.2,0.1),mgp=c(3,0.4,0))
 # browser data without "ymax" and "ymin"
 browsers <-
   structure(
@@ -348,18 +348,18 @@ browsers <-
       ),
       version = structure(
         c(1L,2L, 3L, 4L,5L),
-       # c(1L, 1L, 1L, 2L, 2L, 3L,
-       #   3L, 3L, 4L, 4L,4L,5L),
+        # c(1L, 1L, 1L, 2L, 2L, 3L,
+        #   3L, 3L, 4L, 4L,4L,5L),
         .Label = c(
           "Fixed effects",
           "Random intercepts",
-          "Random mobility effects",
-          "Random temporal effects",
+          paste("Random mobility","effects", sep = "\n"),
+          paste("Random temporal","effects", sep = "\n"),
           "Unexplained"
         ),
         class = "factor"
       ),
-      share = c(21.6, 42,2.6, 35, 1.2)
+      share = c(20.5, 11.7, 4, 34.2, 29.6)
     ),
     .Names = c("parent", "node", "size")
     ,
@@ -414,9 +414,9 @@ pie.labels(
   y = center_y,
   angles = version_chart,
   labels = version_labels,
-  radius = 0.38,
+  radius = 0.35,
   bg = NULL,
-  cex = 0.55,
+  cex = 1,
   font = 2,
   col = "gray40"
 )
@@ -440,18 +440,18 @@ pie.labels(
   y = center_y,
   angles = browser_chart,
   labels = paste(browser_data$browser,paste(browser_data$x,"%"), sep = "\n"),
-  radius = 0.125,
+  radius = 0.1,
   bg = NULL,
-  cex = 0.65,
+  cex = 1,
   font = 2,
   col = "black"
 )
 
-title(main="Variance decomposition for all the effects",line=-2)
+title(main="Variance decomposition for all the effects",line=-1)
 
 
 ####################################################
-################## Figure 3 the right pie chart#####
+################## Figure 3 (right) ########################
 ####################################################
 #plot the pie chart for the fixed effects
 library(plotrix)
@@ -473,8 +473,8 @@ browsers <-
         .Label = c(
           "UV radiation",
           "Temperature",
-          "Population",
-          "Medium age",
+          "Population size",
+          "Population Median age",
           "New tests",
           "Population mobility",
           paste("Contact","tracing", sep = "\n"),
@@ -484,7 +484,7 @@ browsers <-
         ),
         class = "factor"
       ),
-      share = c( 0.87,0.2, 0.4, 0.19, 0.34, 3.4, 0.5, 0.3, 2.4,13 )
+      share = c( 0.82,0.28, 0.4, 0.19, 0.32, 3.5, 0.43, 0.17, 2.6,11.8 )
     ),
     .Names = c("parent", "node", "size")
     ,
@@ -546,7 +546,7 @@ pie.labels(
   labels = version_labels,
   radius = 0.38,
   bg = NULL,
-  cex = 0.55,
+  cex = 1,
   font = 2,
   col = "gray40"
 )
@@ -570,14 +570,15 @@ pie.labels(
   y = center_y,
   angles = browser_chart,
   labels = paste(browser_data$browser,paste(browser_data$x,"%"), sep = "\n"),
-  radius = 0.125,
+  radius = 0.2,
   bg = NULL,
-  cex = 0.65,
+  cex = 1,
   font = 2,
   col = "black"
 )
 
-title(main="Variance decomposition for fixed effects",line=-5)
+title(main="Variance decomposition for fixed effects",line=-3)
+
 
 ####################################################
 ################## Figure S1 ########################
